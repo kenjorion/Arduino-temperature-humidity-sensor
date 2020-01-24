@@ -11,9 +11,11 @@ DHT dht(DHTPIN, DHTTYPE);
 void setup() {
   Serial.begin(9600);
   Serial.println(F("DHTxx test!"));
-  
+  pinMode(D1, OUTPUT);
+  pinMode(D2, OUTPUT);
   dht.begin();
 }
+
 
 int i = 0;
 int j = 0;
@@ -49,9 +51,9 @@ void loop() {
     i =0;
   moyenne();
 
-  medtab[j] = t; 
-  j++; 
-  mediane();
+  float resultMediane = mediane(tenLastValues, 10);
+    Serial.println(resultMoyenne);
+    Serial.print("MEDIANE: ");
   
   
   // Compute heat index in Fahrenheit (the default)
@@ -72,7 +74,7 @@ void loop() {
   Serial.println(F("°F"));
 }
 
-
+//moyenne
 void moyenne() {
 
 float acc = 0;
@@ -85,27 +87,29 @@ for (int x =0; x < sizeof(tab)/4 ; x++)
   Serial.println(acc/(sizeof(tab)/4));  
 } 
 
-void mediane() {
-
-float acc = 0;
-
-for (int x =0; x < 11 ; x++) 
-  {
-    acc += tab[x]; 
+//mediane
+float mediane(float t[], int const size) {
+  float f[size];
+  for (int i = 0; i < size; ++i) {
+    f[i] = t[i];
   }
-  Serial.print("Mediane :");  
-  Serial.println(acc/(sizeof(tab)/4));  
+  tri_a_bulle(f, size);
+  return f[5];
 }
 
-int sort_desc(const void *cmp1, const void *cmp2)
-{
-     // Need to cast the void * to int *
-     int a = *((int *)cmp1);
-     int b = *((int *)cmp2);
-     // The comparison
-     return a > b ? -1 : (a < b ? 1 : 0);
-     // A simpler, probably faster way:
-     //return b - a;
-}
+
+void tri_a_bulle(float t[], int const size) {
+  bool en_desordre = true;
+  for (int i = 0; i < size && en_desordre; ++i) {
+    en_desordre = false;
+    for (int j = 1; j < size - i; ++j) {
+      if (t[j-1] > t[j]) {
+        float temp = t[j-1];
+        t[j-1] = t[j];
+        t[j] = temp;
+        en_desordre = true;
+      }
+    }
+  }
 
 
